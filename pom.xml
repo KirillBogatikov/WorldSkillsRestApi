@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.1.RELEASE</version>
+	</parent>
+	<groupId>org.ws.mts</groupId>
+	<artifactId>root</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>MTS REST API</name>
+	<description>MTS REST API for World Skills 2020</description>
+    <distributionManagement>
+        <repository>
+            <id>kllbff-private-releases</id>
+            <name>Releases</name>
+            <url>file:///D:/Work/Maven/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>kllbff-private-snapshots</id>
+            <name>Snapshots</name>
+            <url>file:///D:/Work/Maven/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+	<repositories>
+        <repository>
+            <id>kllbff-public-releases</id>
+            <url>https://github.com/KirillBogatikov/MavenArtifacts/raw/master/releases</url>
+        </repository>
+        <repository>
+            <id>kllbff-public-snapshots</id>
+            <url>https://github.com/KirillBogatikov/MavenArtifacts/raw/master/snapshots</url>
+        </repository>
+        <repository>
+            <id>kllbff-private-releases</id>
+            <url>file:///D:/work/Maven/releases</url>
+        </repository>
+        <repository>
+            <id>kllbff-private-snapshots</id>
+            <url>file:///D:/work/Maven/snapshots</url>
+        </repository>
+    </repositories>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <cuba.version>1.1.0-SNAPSHOT</cuba.version>
+    </properties>
+    <packaging>pom</packaging>
+    <modules>
+    	<module>database</module>
+    	<module>web</module>
+    	
+    	<module>internal</module>
+    </modules>
+</project>

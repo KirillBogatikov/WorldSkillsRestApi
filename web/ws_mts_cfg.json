@@ -1,0 +1,23 @@
+{
+	"server": {
+		"host": "localhost",
+		"ssl": false
+	},
+	"database": {
+		"host": "127.0.0.1",
+		"port": 5432,
+		"database": "postgres",
+		"user": "postgres",
+		"password": "postgres"
+	},
+	"container": {
+		"path": "uploads/",
+		"limit": 1000 
+	},
+	"logging": {
+		"error": "logs/errors.log",
+		"warn": "logs/warnings.log",
+		"info": "logs/info.log",
+		"debug": "logs/debug.log"
+	}
+}
