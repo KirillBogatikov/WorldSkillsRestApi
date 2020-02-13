@@ -1,7 +1,5 @@
 package org.ws.mts.http;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
@@ -24,14 +22,13 @@ import org.ws.mts.models.Config;
 import org.ws.mts.models.Config.Container;
 import org.ws.mts.models.Config.Database;
 import org.ws.mts.models.Config.Logging;
+import org.ws.mts.models.Config.Server;
 import org.ws.mts.service.AuthService;
 import org.ws.mts.service.AuthServiceImpl;
 import org.ws.mts.service.PhotoService;
 import org.ws.mts.service.PhotoServiceImpl;
 import org.ws.mts.service.UserService;
 import org.ws.mts.service.UserServiceImpl;
-
-import com.google.gson.Gson;
 
 @ComponentScan
 @SpringBootApplication
@@ -76,7 +73,7 @@ public class RestWebApplication {
 	}
 	
 	private void loadConfig() throws Exception {
-		File file = new File("ws_mts_cfg.json");
+		/*File file = new File("ws_mts_cfg.json");
 		if(!file.exists()) {
 			throw new RuntimeException("Config file ws_mts_cfg.json is missed");
 		}
@@ -84,7 +81,45 @@ public class RestWebApplication {
 		Gson gson = new Gson();
 		try(FileReader reader = new FileReader(file)) {
 			config = gson.fromJson(reader, Config.class);
-		}
+		}*/
+		
+		config = new Config();
+		Database db = new Database();
+		
+		String uri = System.getenv().get("DATABASE_URL");
+        
+        String[] colonParts = uri.split(":");
+        String[] atSignParts = colonParts[2].split("@");
+        String[] slashParts = colonParts[3].split("/");
+        
+        String user = colonParts[1].substring(2);
+        String password  = atSignParts[0];
+        String host = atSignParts[1];
+        String port = slashParts[0];
+        String database = slashParts[1];
+        
+        db.setHost(host);
+        db.setPort(Integer.valueOf(port));
+        db.setUser(user);
+        db.setPassword(password);
+		db.setDatabase(database);
+		config.setDatabase(db);
+		
+		Container container = new Container();
+		container.setPath("uploads/");
+		config.setContainer(container);
+		
+		Logging logging = new Logging();
+		logging.setDebug("server.log");
+		logging.setError("server.log");
+		logging.setWarn("server.log");
+		logging.setInfo("server.log");
+		config.setLogging(logging);
+		
+		Server server = new Server();
+		server.setHost("ws-mts-api.herokuapp.com");
+		server.setSsl(true);
+		config.setServer(server);
 	}
 	
 	public RestWebApplication() throws Exception {
