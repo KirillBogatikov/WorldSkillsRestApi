@@ -1,1 +1,1 @@
-web: java -jar web/target/web-0.0.1-SNAPSHOT.jar env
+web: java -jar -server -Dserver.port=$PORT $JAVA_OPTS web/target/web-0.0.1-SNAPSHOT.jar env
