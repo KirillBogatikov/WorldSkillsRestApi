@@ -219,7 +219,6 @@ public class RestWebApplication {
 	public static void main(String[] args) throws Exception {
 		try {
 			if(args.length > 0) {
-				System.out.println(Arrays.toString(args));
 				switch(args[0]) {
 					case "auto": autoConfig(args[1], args[2]); break;
 					case "file": fileConfig(); break;
@@ -232,6 +231,7 @@ public class RestWebApplication {
 			SpringApplication.run(RestWebApplication.class, args);
 		} catch(Exception e) {
 			System.err.println("FATAL EXCEPTION OCCURRED");
+			System.out.println(Arrays.toString(args));
 			System.err.println("========================================");
 			e.printStackTrace();
 			Scanner scanner = new Scanner(System.in);
