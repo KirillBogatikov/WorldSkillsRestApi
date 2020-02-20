@@ -1,8 +1,12 @@
 package org.ws.mts.http;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.Scanner;
 
 import javax.servlet.MultipartConfigElement;
 
@@ -30,10 +34,12 @@ import org.ws.mts.service.PhotoServiceImpl;
 import org.ws.mts.service.UserService;
 import org.ws.mts.service.UserServiceImpl;
 
+import com.google.gson.Gson;
+
 @ComponentScan
 @SpringBootApplication
 public class RestWebApplication {	
-	private Config config;
+	private static Config config;
 	private Log log;
 	private DatabaseContext dbctx;
 	
@@ -72,8 +78,8 @@ public class RestWebApplication {
 		dbctx = new DatabaseContext(log, dbcfg.getHost(), dbcfg.getPort(), dbcfg.getDatabase(), dbcfg.getUser(), dbcfg.getPassword());
 	}
 	
-	private void loadConfig() throws Exception {
-		/*File file = new File("ws_mts_cfg.json");
+	private static void fileConfig() throws Exception {
+		File file = new File("ws_mts_cfg.json");
 		if(!file.exists()) {
 			throw new RuntimeException("Config file ws_mts_cfg.json is missed");
 		}
@@ -81,12 +87,15 @@ public class RestWebApplication {
 		Gson gson = new Gson();
 		try(FileReader reader = new FileReader(file)) {
 			config = gson.fromJson(reader, Config.class);
-		}*/
-		
+		}
+	}
+	
+	private static void envConfig() throws Exception {
 		config = new Config();
 		Database db = new Database();
 		
-		String uri = System.getenv().get("DATABASE_URL");
+		Map<String, String> env = System.getenv();
+		String uri = env.get("DATABASE_URL");
         
         String[] colonParts = uri.split(":");
         String[] atSignParts = colonParts[2].split("@");
@@ -106,24 +115,56 @@ public class RestWebApplication {
 		config.setDatabase(db);
 		
 		Container container = new Container();
-		container.setPath("uploads/");
+		container.setPath(env.get("CONTAINER"));
 		config.setContainer(container);
 		
 		Logging logging = new Logging();
-		logging.setDebug("server.log");
-		logging.setError("server.log");
-		logging.setWarn("server.log");
-		logging.setInfo("server.log");
+		logging.setDebug(env.get("LOG_FILE"));
+		logging.setError(env.get("LOG_FILE"));
+		logging.setWarn(env.get("LOG_FILE"));
+		logging.setInfo(env.get("LOG_FILE"));
 		config.setLogging(logging);
 		
 		Server server = new Server();
-		server.setHost("ws-mts-api.herokuapp.com");
+		server.setHost(env.get("HOST"));
+		server.setSsl(true);
+		config.setServer(server);
+	}
+	
+	private static void autoConfig(String key, String host) {
+		config = new Config();
+		Database db = new Database();
+		db.setHost("localhost");
+        db.setPort(5432);
+        db.setUser(key);
+        db.setPassword(key);
+		db.setDatabase(key);
+		config.setDatabase(db);
+
+		File keyDir = new File(key);
+		keyDir.mkdir();
+		
+		Container container = new Container();
+		File files = new File(keyDir, "uploads");
+		files.mkdir();
+		container.setPath(files.getAbsolutePath());
+		config.setContainer(container);
+		
+		Logging logging = new Logging();
+		File logs = new File(keyDir, "logs");
+		logging.setDebug(new File(logs, "debug.log").getAbsolutePath());
+		logging.setError(new File(logs, "error.log").getAbsolutePath());
+		logging.setWarn(new File(logs, "warn.log").getAbsolutePath());
+		logging.setInfo(new File(logs, "info.log").getAbsolutePath());
+		config.setLogging(logging);
+		
+		Server server = new Server();
+		server.setHost(host);
 		server.setSsl(true);
 		config.setServer(server);
 	}
 	
 	public RestWebApplication() throws Exception {
-		loadConfig();
 		configureLog();
 		configureDatabase();
 	}
@@ -170,7 +211,25 @@ public class RestWebApplication {
 		return new LogPrintStream(new PrintStream(path));
 	}
 	
-	public static void main(String[] args) {
-		SpringApplication.run(RestWebApplication.class, args);
+	public static void main(String[] args) throws Exception {
+		try {
+			switch(args[0]) {
+				case "auto": autoConfig(args[1], args[2]); break;
+				case "file": fileConfig(); break;
+				case "env": envConfig(); break;
+			}
+			
+			SpringApplication.run(RestWebApplication.class, args);
+		} catch(Exception e) {
+			System.err.println("FATAL EXCEPTION OCCURRED");
+			System.err.println("========================================");
+			e.printStackTrace();
+			Scanner scanner = new Scanner(System.in);
+			scanner.useDelimiter("");
+			System.err.println("========================================");
+			System.err.println("PRESS ANY KEY TO EXIT");
+			scanner.next();
+			scanner.close();
+		}
 	}
 }

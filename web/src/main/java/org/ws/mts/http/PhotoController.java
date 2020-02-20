@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.ws.mts.models.Config;
+import org.ws.mts.models.Config.Server;
 import org.ws.mts.models.Photo;
 import org.ws.mts.models.Response;
 import org.ws.mts.models.WebUpdatePhoto;
-import org.ws.mts.models.Config.Server;
 import org.ws.mts.service.AuthService;
 import org.ws.mts.service.PhotoService;
 import org.ws.mts.utils.Mapper;
@@ -44,7 +44,7 @@ public class PhotoController {
 		public String message;
 	}
 	
-	@PostMapping
+	@PostMapping(consumes = { "FormData" })
 	public ResponseEntity<? extends Object> upload(@RequestPart("photo") MultipartFile imageFile, 
 												   @RequestHeader("Authorization") String token) {
 		try {
