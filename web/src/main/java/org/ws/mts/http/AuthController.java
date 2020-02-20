@@ -95,7 +95,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<? extends Object> logout(@RequestHeader("Authorization") String token) {
+	public ResponseEntity<? extends Object> logout(@RequestHeader(name = "Authorization", required = false) String token) {
 		try {
 			if(!service.checkToken(token)) {
 				MessageResponse resp = new MessageResponse();

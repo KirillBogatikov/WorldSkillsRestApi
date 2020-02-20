@@ -41,7 +41,7 @@ public class UserController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<? extends Object> search(@RequestParam("search") String query, @RequestHeader("Authorization") String token) {
+	public ResponseEntity<? extends Object> search(@RequestParam("search") String query, @RequestHeader(name = "Authorization", required = false) String token) {
 		log.d(TAG, "Search query: " + query);
 		
 		try {
@@ -98,7 +98,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/{user}/share")
-	public ResponseEntity<? extends Object> share(@PathVariable("user") String user, @RequestBody ShareRequest request, @RequestHeader("Authorization") String token) {
+	public ResponseEntity<? extends Object> share(@PathVariable("user") String user, @RequestBody ShareRequest request, @RequestHeader(name = "Authorization", required = false) String token) {
 		try {
 			if(!authService.checkToken(token)) {
 				MessageResponse resp = new MessageResponse();

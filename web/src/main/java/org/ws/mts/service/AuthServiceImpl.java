@@ -140,6 +140,10 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public boolean checkToken(String token) throws Exception {
+		if(token == null) {
+			return false;
+		}
+		
 		if(!token.startsWith("Bearer")) {
 			return false;
 		}
@@ -150,10 +154,7 @@ public class AuthServiceImpl implements AuthService {
 		if(dieDate == null) {
 			return false;
 		}
-		
-		System.out.println(dieDate.getTime());
-		System.out.println(System.currentTimeMillis());
-		
+				
 		if(dieDate.getTime() < System.currentTimeMillis()) {
 			tokensRepo.delete(token);
 			return false;

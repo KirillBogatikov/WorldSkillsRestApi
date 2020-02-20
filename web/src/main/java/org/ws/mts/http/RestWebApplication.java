@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -133,6 +134,9 @@ public class RestWebApplication {
 	
 	private static void autoConfig(String key, String host) {
 		config = new Config();
+		
+		System.out.println(config);
+		
 		Database db = new Database();
 		db.setHost("localhost");
         db.setPort(5432);
@@ -202,21 +206,27 @@ public class RestWebApplication {
 		return new UserServiceImpl(dbctx);
 	}
 	
-	@Bean PhotoService getPhotoService() throws SQLException {
+	@Bean 
+	PhotoService getPhotoService() throws SQLException {
 		Container container = config.getContainer();
 		return new PhotoServiceImpl(dbctx, container.getPath());
 	}
-	
+		
 	private LogStream logToFile(String path) throws IOException {
 		return new LogPrintStream(new PrintStream(path));
 	}
 	
 	public static void main(String[] args) throws Exception {
 		try {
-			switch(args[0]) {
-				case "auto": autoConfig(args[1], args[2]); break;
-				case "file": fileConfig(); break;
-				case "env": envConfig(); break;
+			if(args.length > 0) {
+				System.out.println(Arrays.toString(args));
+				switch(args[0]) {
+					case "auto": autoConfig(args[1], args[2]); break;
+					case "file": fileConfig(); break;
+					case "env": envConfig(); break;
+				}
+			} else {
+				envConfig();
 			}
 			
 			SpringApplication.run(RestWebApplication.class, args);
@@ -227,7 +237,7 @@ public class RestWebApplication {
 			Scanner scanner = new Scanner(System.in);
 			scanner.useDelimiter("");
 			System.err.println("========================================");
-			System.err.println("PRESS ANY KEY TO EXIT");
+			System.err.println("PRESS ENTER TO EXIT");
 			scanner.next();
 			scanner.close();
 		}

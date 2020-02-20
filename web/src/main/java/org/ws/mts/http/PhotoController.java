@@ -2,6 +2,8 @@ package org.ws.mts.http;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.cuba.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +45,47 @@ public class PhotoController {
 	public class MessageResponse {
 		public String message;
 	}
-	
-	@PostMapping(consumes = { "FormData" })
+	@PostMapping("/{id}")
+	public ResponseEntity<? extends Object> update(@PathVariable("id") String id, @RequestBody WebUpdatePhoto photo, @RequestHeader(name = "Authorization", required = false) String token) {
+		try {
+			if(!authService.checkToken(token)) {
+				MessageResponse resp = new MessageResponse();
+				resp.message = "You need authorization";
+				return new ResponseEntity<>(resp, HttpStatus.FORBIDDEN);
+			}
+			
+			if(!photoService.checkAccess(authService.userId(token), id)) {
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			}
+			
+			if(!photo.getMethod().equals("patch")) {
+				return new ResponseEntity<>(Mapper.from(null, photo.getMethod()), HttpStatus.UNPROCESSABLE_ENTITY);
+			}
+			
+			String base64 = photo.getImageBase64().replace("data:image/jpeg;base64,", "").replace("data:image/png;base64,", "");
+			Response response = photoService.update(id, base64 != null ? Base64.decodeBase64(base64) : null, photo.getName());
+			Object content = response.getContent();
+			
+			switch(response.getStatus()) {
+				case OK: 
+					Photo p = (Photo)content;
+					p.setLink(fixedLink(p.getLink()));
+					return new ResponseEntity<>(content, HttpStatus.OK);
+				case INVALID:
+					return new ResponseEntity<>(content, HttpStatus.UNPROCESSABLE_ENTITY);
+				default:
+					break;
+			}
+		} catch(Throwable t) {
+			log.e(TAG, "update", t);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+			
+	@PostMapping
 	public ResponseEntity<? extends Object> upload(@RequestPart("photo") MultipartFile imageFile, 
-												   @RequestHeader("Authorization") String token) {
+												   @RequestHeader(name = "Authorization", required = false) String token, HttpServletRequest request) {
 		try {
 			if(!authService.checkToken(token)) {
 				MessageResponse resp = new MessageResponse();
@@ -88,46 +127,8 @@ public class PhotoController {
 		return url;
 	}
 	
-	@PostMapping("/{id}")
-	public ResponseEntity<? extends Object> update(@PathVariable("id") String id, @RequestBody WebUpdatePhoto photo, @RequestHeader("Authorization") String token) {
-		try {
-			if(!authService.checkToken(token)) {
-				MessageResponse resp = new MessageResponse();
-				resp.message = "You need authorization";
-				return new ResponseEntity<>(resp, HttpStatus.FORBIDDEN);
-			}
-			
-			if(!photoService.checkAccess(authService.userId(token), id)) {
-				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-			}
-			
-			if(!photo.getMethod().equals("patch")) {
-				return new ResponseEntity<>(Mapper.from(null, photo.getMethod()), HttpStatus.UNPROCESSABLE_ENTITY);
-			}
-			
-			String base64 = photo.getImageBase64();
-			Response response = photoService.update(id, base64 != null ? Base64.decodeBase64(base64) : null, photo.getName());
-			Object content = response.getContent();
-			
-			switch(response.getStatus()) {
-				case OK: 
-					Photo p = (Photo)content;
-					p.setLink(fixedLink(p.getLink()));
-					return new ResponseEntity<>(content, HttpStatus.OK);
-				case INVALID:
-					return new ResponseEntity<>(content, HttpStatus.UNPROCESSABLE_ENTITY);
-				default:
-					break;
-			}
-		} catch(Throwable t) {
-			log.e(TAG, "update", t);
-		}
-		
-		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	
 	@GetMapping
-	public ResponseEntity<? extends Object> list(@RequestHeader("Authorization") String token) {
+	public ResponseEntity<? extends Object> list(@RequestHeader(name = "Authorization", required = false) String token) {
 		try {
 			if(!authService.checkToken(token)) {
 				MessageResponse resp = new MessageResponse();
@@ -150,7 +151,7 @@ public class PhotoController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<? extends Object> getById(@PathVariable("id") String id, @RequestHeader("Authorization") String token) {
+	public ResponseEntity<? extends Object> getById(@PathVariable("id") String id, @RequestHeader(name = "Authorization", required = false) String token) {
 		try {
 			if(!authService.checkToken(token)) {
 				MessageResponse resp = new MessageResponse();
@@ -169,7 +170,7 @@ public class PhotoController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<? extends Object> delete(@PathVariable("id") String id, @RequestHeader("Authorization") String token) {
+	public ResponseEntity<? extends Object> delete(@PathVariable("id") String id, @RequestHeader(name = "Authorization", required = false) String token) {
 		try {
 			if(!authService.checkToken(token)) {
 				MessageResponse resp = new MessageResponse();
