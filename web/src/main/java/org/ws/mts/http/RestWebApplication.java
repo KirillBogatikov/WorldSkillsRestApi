@@ -156,6 +156,7 @@ public class RestWebApplication {
 		
 		Logging logging = new Logging();
 		File logs = new File(keyDir, "logs");
+		logs.mkdir();
 		logging.setDebug(new File(logs, "debug.log").getAbsolutePath());
 		logging.setError(new File(logs, "error.log").getAbsolutePath());
 		logging.setWarn(new File(logs, "warn.log").getAbsolutePath());
