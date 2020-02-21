@@ -37,7 +37,10 @@ import org.ws.mts.service.UserServiceImpl;
 
 import com.google.gson.Gson;
 
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 @ComponentScan
+@EnableSwagger2
 @SpringBootApplication
 public class RestWebApplication {	
 	private static Config config;

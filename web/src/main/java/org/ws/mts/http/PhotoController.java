@@ -17,19 +17,27 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.ws.mts.models.Config;
 import org.ws.mts.models.Config.Server;
 import org.ws.mts.models.Photo;
 import org.ws.mts.models.Response;
+import org.ws.mts.models.WebPhoto;
 import org.ws.mts.models.WebUpdatePhoto;
 import org.ws.mts.service.AuthService;
 import org.ws.mts.service.PhotoService;
 import org.ws.mts.utils.Mapper;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @RequestMapping("/photos/api/photo")
+@Api(value="Photos", description="Photo service: get by id, upload, update, list and delete photos. Only authorized users can use this API")
 public class PhotoController {
 	private static final String TAG = PhotoController.class.getSimpleName();
 	
@@ -45,6 +53,15 @@ public class PhotoController {
 	public class MessageResponse {
 		public String message;
 	}
+	
+	@ApiOperation(value = "Update early uploaded photo")
+	@ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Information updated", response = WebPhoto.class),
+        @ApiResponse(code = 403, message = "You need Authorization header", response = MessageResponse.class),
+        @ApiResponse(code = 403, message = "You haven't access to specified photo"),
+        @ApiResponse(code = 422, message = "Some fields have incorrect values", response = WebUpdatePhoto.class),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
 	@PostMapping("/{id}")
 	public ResponseEntity<? extends Object> update(@PathVariable("id") String id, @RequestBody WebUpdatePhoto photo, @RequestHeader(name = "Authorization", required = false) String token) {
 		try {
@@ -82,7 +99,15 @@ public class PhotoController {
 		
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-			
+
+	@ApiOperation(value = "Upload new photo")
+	@ApiResponses(value = {
+        @ApiResponse(code = 201, message = "Photo uploaded, static link generated", response = WebPhoto.class),
+        @ApiResponse(code = 403, message = "You need Authorization header", response = MessageResponse.class),
+        @ApiResponse(code = 403, message = "You haven't access to specified photo"),
+        @ApiResponse(code = 422, message = "Some fields have incorrect values", response = WebUpdatePhoto.class),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
 	@PostMapping
 	public ResponseEntity<? extends Object> upload(@RequestPart("photo") MultipartFile imageFile, 
 												   @RequestHeader(name = "Authorization", required = false) String token, HttpServletRequest request) {
@@ -126,7 +151,13 @@ public class PhotoController {
 		url += server.getHost() + "/photos/static/" + link;
 		return url;
 	}
-	
+
+	@ApiOperation(value = "List all available photos: own and shared")
+	@ApiResponses(value = {
+        @ApiResponse(code = 200, message = "List of photos returned", response = WebPhoto.class),
+        @ApiResponse(code = 403, message = "You need Authorization header", response = MessageResponse.class),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
 	@GetMapping
 	public ResponseEntity<? extends Object> list(@RequestHeader(name = "Authorization", required = false) String token) {
 		try {
@@ -149,7 +180,13 @@ public class PhotoController {
 		
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
+	@ApiOperation(value = "Get information by photo id")
+	@ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Photo found", response = Photo.class),
+        @ApiResponse(code = 403, message = "You need Authorization header", response = MessageResponse.class),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
 	@GetMapping("/{id}")
 	public ResponseEntity<? extends Object> getById(@PathVariable("id") String id, @RequestHeader(name = "Authorization", required = false) String token) {
 		try {
@@ -168,7 +205,15 @@ public class PhotoController {
 		
 		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
-	
+
+	@ApiOperation(value = "Delete photo")
+	@ApiResponses(value = {
+        @ApiResponse(code = 204, message = "Photo deleted"),
+        @ApiResponse(code = 403, message = "You need Authorization header", response = MessageResponse.class),
+        @ApiResponse(code = 403, message = "You haven't access to specified photo"),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
 	public ResponseEntity<? extends Object> delete(@PathVariable("id") String id, @RequestHeader(name = "Authorization", required = false) String token) {
 		try {

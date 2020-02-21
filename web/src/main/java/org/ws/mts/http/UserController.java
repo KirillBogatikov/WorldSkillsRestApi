@@ -14,16 +14,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.ws.mts.models.SearchQuery;
 import org.ws.mts.models.User;
+import org.ws.mts.models.WebUser;
 import org.ws.mts.service.AuthService;
 import org.ws.mts.service.PhotoService;
 import org.ws.mts.service.UserService;
 import org.ws.mts.utils.Mapper;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @RequestMapping("/photos/api/user")
+@Api(value="Users", description="User service: search user with smart engine")
 public class UserController {
 	private static final String TAG = UserController.class.getSimpleName();
 	
@@ -39,7 +47,13 @@ public class UserController {
 	public class MessageResponse {
 		public String message;
 	}
-	
+
+	@ApiOperation(value = "Search users by query")
+	@ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Noone or more users found", response = WebUser[].class),
+        @ApiResponse(code = 403, message = "You need Authorization header", response = MessageResponse.class),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
 	@GetMapping
 	public ResponseEntity<? extends Object> search(@RequestParam("search") String query, @RequestHeader(name = "Authorization", required = false) String token) {
 		log.d(TAG, "Search query: " + query);
@@ -96,7 +110,15 @@ public class UserController {
 	public static class ShareResponse {
 		public List<String> existing_photos;
 	}
-	
+
+	@ApiOperation(value = "Share photo with user")
+	@ApiResponses(value = {
+        @ApiResponse(code = 201, message = "Photo shared", response = ShareResponse.class),
+        @ApiResponse(code = 400, message = "You can not share photo to yourself or non-existent user", response = MessageResponse.class),
+        @ApiResponse(code = 403, message = "You need Authorization header", response = MessageResponse.class),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
+	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/{user}/share")
 	public ResponseEntity<? extends Object> share(@PathVariable("user") String user, @RequestBody ShareRequest request, @RequestHeader(name = "Authorization", required = false) String token) {
 		try {

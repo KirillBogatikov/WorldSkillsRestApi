@@ -11,8 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.ws.mts.service.PhotoService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @RequestMapping("/photos/static")
+@Api(value="Static photos data", description="Static service: returns photo files by id")
 public class StaticController {
 	private static final String TAG = StaticController.class.getSimpleName();
 	
@@ -20,7 +26,13 @@ public class StaticController {
 	private PhotoService photos;
 	@Autowired
 	private Log log;
-	
+
+	@ApiOperation(value = "Get photo file by id")
+	@ApiResponses(value = {
+        @ApiResponse(code = 200, message = "File returned", response = byte[].class),
+        @ApiResponse(code = 404, message = "Photo not found"),
+        @ApiResponse(code = 500, message = "Unknown internal server error"),
+    })
 	@GetMapping(path = {"{id}.png", "{id}.jpg"}, produces = { MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE })
 	public ResponseEntity<byte[]> get(@PathVariable("id") String id) {
 		try {
