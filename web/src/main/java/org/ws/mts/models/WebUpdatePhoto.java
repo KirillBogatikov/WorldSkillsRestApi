@@ -1,9 +1,16 @@
 package org.ws.mts.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
+
 public class WebUpdatePhoto {
-	private String _method;
+	@SerializedName("_method")
+    @JsonProperty("_method")
+	private String method;
 	private String name;
-	private String photo;
+	@SerializedName("photo")
+    @JsonProperty("photo")
+	private String imageBase64;
 
 	public String getName() {
 		return name;
@@ -14,19 +21,19 @@ public class WebUpdatePhoto {
 	}
 
 	public String getImageBase64() {
-		return photo;
+		return imageBase64;
 	}
 
 	public void setImageBase64(String imageBase64) {
-		this.photo = imageBase64;
+		this.imageBase64 = imageBase64;
 	}
 
 	public String getMethod() {
-		return _method;
+		return method;
 	}
 
 	public void setMethod(String method) {
-		this._method = method;
+		this.method = method;
 	}
 	
 }

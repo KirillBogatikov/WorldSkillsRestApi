@@ -2,11 +2,18 @@ package org.ws.mts.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
+
 public class WebPhoto {
 	private String id;
 	private String name;
+	@SerializedName("url")
+    @JsonProperty("url")
 	private String url;
 	private String owner_id;
+	@SerializedName("users")
+    @JsonProperty("users")
 	private List<String> users;
 
 	public String getId() {

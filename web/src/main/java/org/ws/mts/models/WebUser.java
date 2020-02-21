@@ -1,7 +1,12 @@
 package org.ws.mts.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
+
 public class WebUser {
 	private String id;
+	@SerializedName("first_name")
+    @JsonProperty("first_name")
 	private String first_name;
 	private String surname;
 	private String phone;
