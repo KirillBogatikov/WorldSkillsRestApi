@@ -1,11 +1,8 @@
 package org.ws.mts.models;
 
-import com.google.gson.annotations.SerializedName;
-
 public class WebUser {
 	private String id;
-	@SerializedName("first_name")
-	private String name;
+	private String first_name;
 	private String surname;
 	private String phone;
 	private String password;
@@ -19,11 +16,11 @@ public class WebUser {
 	}
 	
 	public String getName() {
-		return name;
+		return first_name;
 	}
 	
 	public void setName(String name) {
-		this.name = name;
+		this.first_name = name;
 	}
 	
 	public String getSurname() {

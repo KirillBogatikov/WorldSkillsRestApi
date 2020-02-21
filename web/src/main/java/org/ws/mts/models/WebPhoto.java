@@ -2,17 +2,12 @@ package org.ws.mts.models;
 
 import java.util.List;
 
-import com.google.gson.annotations.SerializedName;
-
 public class WebPhoto {
 	private String id;
 	private String name;
-	@SerializedName("url")
-	private String link;
-	@SerializedName("owner_id")
-	private String owner;
-	@SerializedName("users")
-	private List<String> trusted;
+	private String url;
+	private String owner_id;
+	private List<String> users;
 
 	public String getId() {
 		return id;
@@ -31,27 +26,27 @@ public class WebPhoto {
 	}
 
 	public String getLink() {
-		return link;
+		return url;
 	}
 
 	public void setLink(String link) {
-		this.link = link;
+		this.url = link;
 	}
 	
 	public String getOwner() {
-		return owner;
+		return owner_id;
 	}
 
 	public void setOwner(String owner) {
-		this.owner = owner;
+		this.owner_id = owner;
 	}
 
 	public List<String> getTrusted() {
-		return trusted;
+		return users;
 	}
 
 	public void setTrusted(List<String> trusted) {
-		this.trusted = trusted;
+		this.users = trusted;
 	}
 	
 }

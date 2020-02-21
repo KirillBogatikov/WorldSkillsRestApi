@@ -1,13 +1,9 @@
 package org.ws.mts.models;
 
-import com.google.gson.annotations.SerializedName;
-
 public class WebUpdatePhoto {
-	@SerializedName("_method")
-	private String method;
+	private String _method;
 	private String name;
-	@SerializedName("photo")
-	private String imageBase64;
+	private String photo;
 
 	public String getName() {
 		return name;
@@ -18,19 +14,19 @@ public class WebUpdatePhoto {
 	}
 
 	public String getImageBase64() {
-		return imageBase64;
+		return photo;
 	}
 
 	public void setImageBase64(String imageBase64) {
-		this.imageBase64 = imageBase64;
+		this.photo = imageBase64;
 	}
 
 	public String getMethod() {
-		return method;
+		return _method;
 	}
 
 	public void setMethod(String method) {
-		this.method = method;
+		this._method = method;
 	}
 	
 }
