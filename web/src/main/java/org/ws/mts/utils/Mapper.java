@@ -27,6 +27,7 @@ public class Mapper {
 	public static WebUser from(User user) {
 		WebUser webUser = new WebUser();
 		
+		webUser.setId(user.getId());
 		webUser.setName(user.getName());
 		webUser.setSurname(user.getSurname());
 		webUser.setPhone(user.getPhone());
